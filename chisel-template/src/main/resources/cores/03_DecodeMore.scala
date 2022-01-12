@@ -54,6 +54,7 @@ class Core extends Module {
       XORI -> List(ALU_XOR, OP1_RS1, OP2_IMI, MEN_X , REN_S, WB_ALU)
     )
   )
+                                      //mem_write_en //regfile_write_en //
   val exe_fun :: op1_sel :: op2_sel :: mem_wen :: rf_wen :: wb_sel :: Nil = csignals
 
   val op1_data = MuxCase(0.U(WORD_LEN.W), Seq(
@@ -83,8 +84,11 @@ class Core extends Module {
   // Memory Access Stage
 
   io.dmem.addr := alu_out
+  //我觉得加个这个好些
+  if(mem_wen === MEN_S){
   io.dmem.wen := mem_wen
   io.dmem.wdata := rs2_data
+  }
 
 
   //**********************************
