@@ -142,7 +142,7 @@ class Core extends Module {
 
   //**********************************
   // Writeback (WB) Stage
-
+  //
   val wb_data = MuxCase(alu_out, Seq(
     (wb_sel === WB_MEM) -> io.dmem.rdata,
     (wb_sel === WB_PC) -> pc_plus4

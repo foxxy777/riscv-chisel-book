@@ -156,26 +156,30 @@ class Core extends Module {
   io.dmem.wdata := rs2_data
 
 
-  // CSR
+  // CSR，就是全局变量
   val csr_regfile = Mem(4096, UInt(WORD_LEN.W)) // 12bitアドレスで指定できるのがmax4096bit
   val csr_addr    = inst(31,20)
+  //从csr上取出指令高12位的地址指示的位置
   val csr_rdata   = csr_regfile(csr_addr)
-
+  
+  //将取出来的数值做处理
   val csr_wdata = MuxCase(0.U(WORD_LEN.W), Seq(
     (csr_cmd === CSR_W) -> op1_data,
     (csr_cmd === CSR_S) -> (csr_rdata | op1_data),
     (csr_cmd === CSR_C) -> (csr_rdata & ~op1_data),
   ))
-
+  //处理了什么数据，就放回什么位置
   when(csr_cmd > 0.U){
     csr_regfile(csr_addr) := csr_wdata
   }
+  //以上就实现了取哪个csr数据，就处理哪个csr数据
 
   // Writeback
   val wb_data = MuxCase(alu_out, Seq(
     (wb_sel === WB_MEM) -> io.dmem.rdata,
     (wb_sel === WB_PC) -> pc_plus4,
-    (wb_sel === WB_CSR) -> csr_rdata // 追加
+    (wb_sel === WB_CSR) -> csr_rdata // 追加 
+    //看起来这是把处理前的旧值放去了通用寄存器rf(rd)
   ))
 
   when(rf_wen === REN_S) {
